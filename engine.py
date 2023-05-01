@@ -1,8 +1,4 @@
-import asyncio
-import csv
 import ssl
-import requests
-import pathlib
 import websocket
 import json
 
@@ -27,6 +23,15 @@ getScript = {
 	"id": 3
 }
 
+publish = {
+	"handle": 1,
+	"method": "Publish",
+	"params": {
+		"qStreamId": "2a63aa89-1af5-4e1c-9c18-bbcc612b188b",
+		"qName": "Vered_Order Model Process"
+	}
+}
+
 def get_doc_list(ws):
 	ws.send(json.dumps(getDocList))
 	return json.loads(ws.recv())
@@ -47,21 +52,25 @@ def open_doc(ws, appid):
 		}))
 	return ws.recv()
 
-def swap_script(app_id, addword):
+def swap_script(app_id):
 	uri = f"wss://{engine_endpoint}:4747/app"
 	ws = websocket.create_connection(uri, sslopt=certs, header=engine_header, verify=False)
 	rec = ws.recv()
 	rec = open_doc(ws, app_id)
-	rec = get_script(ws)
-	newscript = rec["result"]["qScript"] + addword
-	#print(newscript)
-	ws.send((json.dumps({"handle": 1,
-		"method": "SetScript",
-		"params": {
-			"qScript": f"{newscript}"
-		},
-		"outKey": -1,
-		"id": 3})))
-	#print(ws.recv())
+	ws.send(json.dumps(getDocList))
+	receieve = json.loads(ws.recv())
+	print(rec)
+	# rec = get_script(ws)
+	# newscript = addword + rec["result"]["qScript"]
+	# print(newscript)
+	# #print(newscript)
+	# ws.send((json.dumps({"handle": 1,
+	# 	"method": "SetScript",
+	# 	"params": {
+	# 		"qScript": f"{newscript}"
+	# 	}})))
+	ws.close()
 
-swap_script("3e9b8155-1823-44c3-86e7-1abc025a3e2c", "words")
+swap_script("806f17e1-b58c-4b39-8728-cb5188cd462a")
+
+# pip install websocket-client
